@@ -1,0 +1,33 @@
+volumes:
+  postgres_data:
+
+services:
+  back:
+    build:
+      context: ./game_recommender_back
+      dockerfile: Dockerfile
+    restart: always
+    volumes:
+      - ./game_recommender_back:/code
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env.config
+    command: bash -c "python3 -Xfrozen_modules=off -m debugpy --listen 0.0.0.0:8001 start.py"
+
+  db:
+    image: postgres:17
+    restart: always
+    env_file:
+      - .env.config
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 1s
+      timeout: 5s
+      retries: 15
