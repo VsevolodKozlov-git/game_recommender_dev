@@ -31,3 +31,13 @@ services:
       interval: 1s
       timeout: 5s
       retries: 15
+
+  front: 
+    build: 
+      context: ./game_recommender_front
+      dockerfile: Dockerfile
+    volumes:
+      - ./game_recommender_front:/app:cached
+    ports: 
+      - '5173:5173'
+    command: sh -c 'sh  ./docker_scripts/init_vite.sh &&  tail -f /dev/null'
